@@ -8,7 +8,7 @@ class File {
         this._path = path.resolve(arg);
     }
 
-    exists() {
+    stat() {
         return new Promise(((resolve, reject) => {
             fs.stat(this._path, (err, stats) => {
                 if (err) {
@@ -16,9 +16,13 @@ class File {
                     return;
                 }
 
-                resolve();
+                resolve(stats);
             });
         }).bind(this));
+    }
+
+    exists() {
+        return this.stat();
     }
 
     copy(dest) {
@@ -54,6 +58,19 @@ class File {
 
                 resolve();
             }).bind(this));
+        }).bind(this));
+    }
+
+    make() {
+        return new Promise(((resolve, reject) => {
+            fs.writeFile(this._path, "", err => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve();
+            });
         }).bind(this));
     }
 
