@@ -1,7 +1,7 @@
 "use strict";
 var child_process = require("child_process");
 
-class Exec {
+class Process {
     constructor(command, options) {
         this._command = command || "";
         this._options = options || {};
@@ -11,23 +11,18 @@ class Exec {
         return new Promise((resolve, reject) => {
             var command = this._command;
 
-            for (var key in args) {
+            Object.keys(args).forEach(key => {
                 var reg;
                 try {
                     reg = new RegExp("\\${" + key + "}", "g");
                 } catch (err) {
-                    continue;
-                }
-                command = command.replace(reg, args[key]);
-            }
-
-            var exec = child_process.exec(command, this._options, (error, stdout, stderr) => {
-                if (error) {
-                    reject(error);
                     return;
                 }
+                command = command.replace(reg, args[key]);
+            });
 
-                resolve(stdout, stderr);
+            var exec = child_process.exec(command, this._options, (error, stdout, stderr) => {
+                resolve(error, stdout, stderr);
             });
         });
     }
@@ -54,3 +49,5 @@ class Exec {
         this._options = options;
     }
 }
+
+module.exports = Process;
