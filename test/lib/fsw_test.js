@@ -29,22 +29,22 @@ describe("fsw", () => {
 
         it("should get path", () => {
             var file = new fsw.File(tmpPath);
-            assert.deepEqual(file.path, tmpPath);
+            assert.strictEqual(file.path, tmpPath);
         });
 
         it("should get name", () => {
             var file = new fsw.File(tmpPath);
-            assert.deepEqual(file.name, tmpName);
+            assert.strictEqual(file.name, tmpName);
         });
 
         it("should get base", () => {
             var file = new fsw.File(tmpPath);
-            assert.deepEqual(file.base, tmpBase);
+            assert.strictEqual(file.base, tmpBase);
         });
 
         it("should get ext", () => {
             var file = new fsw.File(tmpPath);
-            assert.deepEqual(file.ext, tmpExt);
+            assert.strictEqual(file.ext, tmpExt);
         });
 
         it("should get stats", done => {
@@ -74,7 +74,7 @@ describe("fsw", () => {
             var parent = file.parent();
             assert(parent instanceof fsw.Folder, "instanceof fsw.Folder");
             var parentPath = parent.path;
-            assert.deepEqual(parentPath, path.dirname(file.path), "path");
+            assert.strictEqual(parentPath, path.dirname(file.path), "path");
         });
 
         it("should copy", done => {
@@ -82,7 +82,7 @@ describe("fsw", () => {
             var destFile = new fsw.File(tmpDestPath);
             file.copy(destFile).then(() => {
                 var txt = fs.readFileSync(destFile.path, "utf8");
-                assert.deepEqual(txt, tmpContent);
+                assert.strictEqual(txt, tmpContent);
                 fs.unlinkSync(destFile.path);
                 done();
             }).catch(() => {
@@ -102,7 +102,7 @@ describe("fsw", () => {
                 }).catch(() => {
                     destFile.exists().then(() => {
                         var txt = fs.readFileSync(destFile.path, "utf8");
-                        assert.deepEqual(txt, tmpContent);
+                        assert.strictEqual(txt, tmpContent);
                         fs.unlinkSync(destFile.path);
                         done();
                     }).catch(() => {
@@ -154,7 +154,7 @@ describe("fsw", () => {
         it("should read", done => {
             var file = new fsw.File(tmpPath);
             file.read("utf8").then(data => {
-                assert.deepEqual(data, tmpContent);
+                assert.strictEqual(data, tmpContent);
                 done();
             }).catch(() => {
                 assert(false);
@@ -166,7 +166,7 @@ describe("fsw", () => {
             var file = new fsw.File(tmpDestPath);
             file.write(tmpContent, "utf8").then(() => {
                 var txt = fs.readFileSync(file.path, "utf8");
-                assert.deepEqual(txt, tmpContent);
+                assert.strictEqual(txt, tmpContent);
                 fs.unlinkSync(file.path);
                 done();
             }).catch(() => {
@@ -179,7 +179,7 @@ describe("fsw", () => {
             var file = new fsw.File(tmpDestPath);
             file.write(tmpContent, "SJIS").then(() => {
                 file.read("SJIS").then(data => {
-                    assert.deepEqual(data, tmpContent);
+                    assert.strictEqual(data, tmpContent);
                     fs.unlinkSync(file.path);
                     done();
                 }).catch(() => {
@@ -214,7 +214,7 @@ describe("fsw", () => {
 
         it("should get path", () => {
             var folder = new fsw.Folder(fPath);
-            assert.deepEqual(folder.path, fPath);
+            assert.strictEqual(folder.path, fPath);
         });
 
         it("should get stats", done => {
@@ -244,7 +244,7 @@ describe("fsw", () => {
             var parent = folder.parent();
             assert(parent instanceof fsw.Folder, "instanceof fsw.Folder");
             var parentPath = parent.path;
-            assert.deepEqual(parentPath, path.dirname(folder.path), "path");
+            assert.strictEqual(parentPath, path.dirname(folder.path), "path");
         });
 
         it("should make", done => {
@@ -290,14 +290,14 @@ describe("fsw", () => {
             var folder = new fsw.Folder(fPath);
             var child = folder.childFile(cfName);
             assert(child instanceof fsw.File, "instanceof fsw.File");
-            assert.deepEqual(child.path, path.join(cfPath), "path");
+            assert.strictEqual(child.path, path.join(cfPath), "path");
         });
 
         it("should get childFolder", () => {
             var folder = new fsw.Folder(fPath);
             var child = folder.childFolder(cfName);
             assert(child instanceof fsw.Folder, "instanceof fsw.Direcotry");
-            assert.deepEqual(child.path, path.join(cfPath), "path");
+            assert.strictEqual(child.path, path.join(cfPath), "path");
         });
 
         it("should get children", done => {
