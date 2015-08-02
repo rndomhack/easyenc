@@ -8,7 +8,8 @@ class Process {
     }
 
     exec(args) {
-        return new Promise((resolve, reject) => {
+        return new Promise(((resolve, reject) => {
+            args = args || {};
             var command = this._command;
 
             Object.keys(args).forEach(key => {
@@ -24,7 +25,7 @@ class Process {
             var exec = child_process.exec(command, this._options, (error, stdout, stderr) => {
                 resolve(error, stdout, stderr);
             });
-        });
+        }).bind(this));
     }
 
     get command() {
@@ -32,7 +33,7 @@ class Process {
     }
 
     set command(command) {
-        if (!(typeof command !== "string"))
+        if (typeof command !== "string")
             throw new TypeError("Command is not a string");
 
         this._command = command;
@@ -43,7 +44,7 @@ class Process {
     }
 
     set options(options) {
-        if (!(typeof options !== "object"))
+        if (typeof options !== "object")
             throw new TypeError("Options is not an object");
 
         this._options = options;
