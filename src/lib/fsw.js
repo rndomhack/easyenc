@@ -112,6 +112,7 @@ class File extends Fs {
 
     read(encode) {
         return new Promise(((resolve, reject) => {
+            if (encode === void 0) encode = "";
             if (typeof encode !== "string")
                 throw new TypeError("Encode is not a string");
 
@@ -121,7 +122,7 @@ class File extends Fs {
                     return;
                 }
 
-                if (encode === null) {
+                if (encode === "") {
                     resolve(data);
                 } else {
                     var converted;
@@ -143,10 +144,11 @@ class File extends Fs {
 
     write(data, encode) {
         return new Promise(((resolve, reject) => {
+            if (encode === void 0) encode = "";
             if (typeof encode !== "string")
                 throw new TypeError("Encode is not a string");
 
-            if (encode !== null) {
+            if (encode !== "") {
                 try {
                     data = new Buffer(encoding.convert(data, {
                         to: encode,
