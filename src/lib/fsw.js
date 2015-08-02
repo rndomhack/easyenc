@@ -115,7 +115,7 @@ class File extends Fs {
             if (typeof encode !== "string")
                 throw new TypeError("Encode is not a string");
 
-            fs.readFile(this.path, {encoding: null}, (err, data) => {
+            fs.readFile(this._path, {encoding: null}, (err, data) => {
                 if (err) {
                     reject(err);
                     return;
@@ -126,7 +126,11 @@ class File extends Fs {
                 } else {
                     var converted;
                     try {
-                        converted = encoding.convert(new Uint8Array(data), "UNICODE", encode, "string");
+                        converted = encoding.convert(new Uint8Array(data), {
+                            to: "UNICODE",
+                            from: encode,
+                            type: "string"
+                        });
                     } catch(err2) {
                         reject(err2);
                         return;
@@ -144,13 +148,17 @@ class File extends Fs {
 
             if (encode !== null) {
                 try {
-                    data = new Buffer(encoding.convert(data, encode, "UNICODE", "Array"));
+                    data = new Buffer(encoding.convert(data, {
+                        to: encode,
+                        from: "UNICODE",
+                        type: "array"
+                    }));
                 } catch(err) {
                     reject(err);
                     return;
                 }
             }
-            fs.writeFile(this.path, data, {encoding: null}, err => {
+            fs.writeFile(this._path, data, {encoding: null}, err => {
                 if (err) {
                     reject(err);
                     return;
