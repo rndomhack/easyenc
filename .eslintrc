@@ -1,0 +1,13 @@
+{
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "rules": {
+        "no-unused-vars": 0,
+        "no-underscore-dangle": 0,
+        "camelcase": 0,
+        "key-spacing": 0,
+        "curly": 0
+    }
+}
