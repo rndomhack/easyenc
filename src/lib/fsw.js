@@ -1,9 +1,10 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var util = require("util");
 var encoding = require("encoding-japanese");
 
-class File {
+class Fs {
     constructor(arg) {
         this._path = path.resolve(arg);
     }
@@ -25,6 +26,28 @@ class File {
         return this.stat();
     }
 
+    parent() {
+        return new Folder(path.dirname(this._path));
+    }
+
+    get path() {
+        return this._path;
+    }
+
+    get name() {
+        return path.basename(this._path);
+    }
+
+    get base() {
+        return path.basename(this._path, path.extname(this._path));
+    }
+
+    get ext() {
+        return path.extname(this._path);
+    }
+}
+
+class File extends Fs {
     copy(dest) {
         return new Promise(((resolve, reject) => {
             if (!(dest instanceof File))
@@ -44,7 +67,7 @@ class File {
             if (!(dest instanceof File))
                 throw new TypeError("Dest type is not File");
 
-            fs.rename(this._path, dest, (err => {
+            fs.rename(this._path, dest.path, (err => {
                 if (err) {
                     this.copy(dest).then(() => {
                         return this.remove();
@@ -137,31 +160,96 @@ class File {
             });
         }).bind(this));
     }
-
-    parent() {
-        return new Folder(path.dirname(this._path));
-    }
-
-    get path() {
-        return this._path;
-    }
-
-    get name() {
-        return path.basename(this._path);
-    }
-
-    get base() {
-        return path.basename(this._path, path.extname(this._path));
-    }
-
-    get ext() {
-        return path.extname(this._path);
-    }
 }
 
-class Folder {
-    constructor(arg) {
-        this._path = path.resolve(arg);
+class Folder extends Fs {
+    make() {
+        return new Promise(((resolve, reject) => {
+            fs.mkdir(this._path, err => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve();
+            });
+        }).bind(this));
+    }
+
+    remove() {
+        return new Promise(((resolve, reject) => {
+            fs.rmdir(this._path, err => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve();
+            });
+        }).bind(this));
+    }
+
+    childFile(name) {
+        return new File(path.join(this._path, name));
+    }
+
+    childFolder(name) {
+        return new Folder(path.join(this._path, name));
+    }
+
+    children() {
+        var readdir = (arg) => {
+            return new Promise((resolve2, reject2) => {
+                fs.readdir(arg, (err, files) => {
+                    if (err) {
+                        reject2(err);
+                        return;
+                    }
+
+                    files = files.map(value => path.join(arg, value));
+                    resolve2(files);
+                });
+            });
+        };
+
+        var identify = (args) => {
+            return Promise.all(args.map(value => {
+                return new Promise((resolve2, reject2) => {
+                    fs.stat(value, (err, stats) => {
+                        if (err) {
+                            reject2(err);
+                            return;
+                        }
+
+                        if (stats.isFile()) {
+                            resolve2(new File(value));
+                        } else {
+                            resolve2(new Folder(value));
+                        }
+                    });
+                });
+            }));
+        };
+
+        return readdir(this._path).then((files) => {
+            return identify(files);
+        });
+    }
+
+    childFiles() {
+        return this.children().then(files => {
+            return files.filter(value => {
+                return value instanceof File;
+            });
+        });
+    }
+
+    childFolders() {
+        return this.children().then(files => {
+            return files.filter(value => {
+                return value instanceof Folder;
+            });
+        });
     }
 }
 
