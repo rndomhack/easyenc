@@ -20,6 +20,7 @@
     "mocha": "^2.2.5"
   },
   "dependencies": {
+    "co": "^4.6.0",
     "encoding-japanese": "^1.0.23"
   }
 }

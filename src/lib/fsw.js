@@ -1,4 +1,5 @@
 "use strict";
+
 var fs = require("fs");
 var path = require("path");
 var util = require("util");
@@ -23,7 +24,13 @@ class Fs {
     }
 
     exists() {
-        return this.stat();
+        return new Promise(((resolve, reject) => {
+            this.stat().then(() => {
+                resolve(true);
+            }).catch(() => {
+                resolve(false);
+            });
+        }).bind(this));
     }
 
     parent() {

@@ -60,11 +60,8 @@ describe("fsw", () => {
 
         it("should exist", done => {
             var file = new fsw.File(tmpPath);
-            file.exists().then(() => {
-                assert(true);
-                done();
-            }).catch(() => {
-                assert(false);
+            file.exists().then(exists => {
+                assert(exists);
                 done();
             });
         });
