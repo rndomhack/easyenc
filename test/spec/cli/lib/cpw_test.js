@@ -34,8 +34,8 @@ describe("cpw", () => {
 
         it("should exec", done => {
             var process = new Process("node -e process.exit(1)");
-            process.exec().then(err => {
-                assert.strictEqual(err.code, 1);
+            process.exec().then(returns => {
+                assert.strictEqual(returns.error.code, 1);
                 done();
             }).catch(() => {
                 assert(false);
