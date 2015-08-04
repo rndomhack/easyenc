@@ -2,7 +2,7 @@
 
 var assert = require("assert");
 
-var Process = require("../../../src/lib/cpw.js").Process;
+var Process = require("../../../cli/lib/cpw.js").Process;
 
 describe("cpw", () => {
 
