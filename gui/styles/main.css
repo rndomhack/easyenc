@@ -1,0 +1,12 @@
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+body, input, textarea {
+    font-family: "Hiragino Kaku Gothic Pro", "Yu Gothic", Meiryo, "ＭＳ Ｐゴシック", Arial, sans-serif;
+}

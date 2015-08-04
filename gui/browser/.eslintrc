@@ -1,0 +1,13 @@
+{
+    "env": {
+        "browser": true,
+        "node": false
+    },
+    "rules": {
+        "no-console": 0
+    },
+    "globals": {
+        "require": false,
+        "keyboardJS": false
+    }
+}
