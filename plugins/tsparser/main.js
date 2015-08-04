@@ -11,8 +11,8 @@ core.on("initialize", co.wrap(function* (options) {
 }));
 
 core.on("source", co.wrap(function* (options) {
-    var tsparser_txt = new File(options.temp + ".tsparser.txt");
     var vformat = "LWLibavVideoSource_", aformat = "LWLibavAudioSource_";
+    var tsparser_txt = new File(options.temp + ".tsparser.txt");
 
     //tsparserの実行
     var proc = new Process('"${tsparser}" --output "${output}" --mode ${mode} --delay-type ${delaytype} --debug 2 --log "${log}" "${input}"');
@@ -149,6 +149,7 @@ core.on("source", co.wrap(function* (options) {
     input.audio.forEach((value, index) => {
         var script_audio_selected = `${aformat}("${value.path}")`;
         var script_delay_selected = value.delay;
+
         if (index === 0) {
             script_audio = script_audio_selected;
             script_delay = script_delay_selected;

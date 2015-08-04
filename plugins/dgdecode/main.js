@@ -175,6 +175,7 @@ core.on("source", co.wrap(function* (options) {
     input.audio.forEach((value, index) => {
         var script_audio_selected = `${aformat}("${value.path}")`;
         var script_delay_selected = value.delay;
+
         if (index === 0) {
             script_audio = script_audio_selected;
             script_delay = script_delay_selected;

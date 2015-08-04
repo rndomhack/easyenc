@@ -1,0 +1,19 @@
+{
+    "name": "libavsource",
+    "description": "Libav Sourceを使用して動画を読み込みます",
+    "dependencies": [],
+    "type": "source",
+    "main": "main.js",
+    "settings": {
+        "ownformat_video": {
+            "desc": "映像で使用する関数(パスは${path}で指定)",
+            "type": "string",
+            "value": ""
+        },
+        "ownformat_audio": {
+            "desc": "音声で使用する関数(パスは${path}で指定)",
+            "type": "string",
+            "value": ""
+        }
+    }
+}
