@@ -6,8 +6,8 @@ var util = require("util");
 var encoding = require("encoding-japanese");
 
 class Fs {
-    constructor(arg) {
-        this._path = path.resolve(arg);
+    constructor(...args) {
+        this._path = path.resolve(...args);
     }
 
     stat() {
@@ -206,12 +206,12 @@ class Folder extends Fs {
         }).bind(this));
     }
 
-    childFile(name) {
-        return new File(path.join(this._path, name));
+    childFile(...args) {
+        return new File(path.join(this._path, ...args));
     }
 
-    childFolder(name) {
-        return new Folder(path.join(this._path, name));
+    childFolder(...args) {
+        return new Folder(path.join(this._path, ...args));
     }
 
     children() {
