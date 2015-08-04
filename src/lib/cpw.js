@@ -51,4 +51,6 @@ class Process {
     }
 }
 
-module.exports = Process;
+module.exports = {
+    Process: Process
+};
