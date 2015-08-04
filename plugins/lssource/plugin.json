@@ -1,0 +1,8 @@
+{
+    "name": "lssource",
+    "description": "L-SMASH Sourceを使用してmp4やmovを読み込みます",
+    "dependencies": ["mediainfo"],
+    "type": "source",
+    "main": "main.js",
+    "settings": {}
+}

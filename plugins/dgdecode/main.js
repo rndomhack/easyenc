@@ -2,15 +2,9 @@
 
 core.on("initialize", co.wrap(function* (options) {
     var dgindex = new File(options.settings[options.settings.dgindex_type + "_path"]);
-    var ts2aac = new File(options.settings.ts2aac_path);
 
     if (!(yield dgindex.exists())) {
-        error(options.settings.dgindex_type + "が存在しません");
-        return false;
-    }
-
-    if (options.settings.ts2aac && !(yield ts2aac.exists())) {
-        error("ts2aacが存在しません");
+        options.error(options.settings.dgindex_type + "が存在しません");
         return false;
     }
 
@@ -21,7 +15,6 @@ core.on("source", co.wrap(function* (options) {
     var avs = new File(options.temp + ".avs");
     var dgindex_avs = new File(options.temp + ".dgindex.avs");
     var fake_avs = new File(options.temp + ".dgindex.fake.avs");
-    var ts2aac_txt = new File(options.temp + ".ts2aac.txt");
     var output_video, output_audio = [], output_delay = [], vformat = "";
 
     //pidの列挙
@@ -41,7 +34,7 @@ core.on("source", co.wrap(function* (options) {
     try {
         yield fake_avs.write(fake_script, "sjis");
     } catch(err) {
-        error("dgindex.fake.avsの書き込みに失敗しました");
+        options.error("dgindex.fake.avsの書き込みに失敗しました");
         return false;
     }
 
@@ -55,7 +48,7 @@ core.on("source", co.wrap(function* (options) {
             dgindex_args += " -vp " + video_pid.toString(16);
             dgindex_args += " -ap " + audio_pid[0].toString(16);
         }
-        dgindex_args += " -om " + (options.settings.ts2aac ? "0" : "1");
+        dgindex_args += " -om 1";
     }
     if (options.settings.dgindex_type === "dgindexnv") {
         vformat = "DGSource_";
@@ -64,7 +57,7 @@ core.on("source", co.wrap(function* (options) {
         if (video_pid !== -1) {
             dgindex_args += " -v " + video_pid.toString(16);
         }
-        dgindex_args += options.settings.ts2aac ? "" : " -a";
+        dgindex_args += " -a";
     }
     if (options.settings.dgindex_type === "dgindexim") {
         vformat = "DGSourceIM_";
@@ -73,7 +66,7 @@ core.on("source", co.wrap(function* (options) {
         if (video_pid !== -1) {
             dgindex_args += " -v " + video_pid.toString(16);
         }
-        dgindex_args += options.settings.ts2aac ? "" : " -a";
+        dgindex_args += " -a";
     }
 
     //dgindexの実行
@@ -112,7 +105,7 @@ core.on("source", co.wrap(function* (options) {
     var proc = new Process(proc_command);
     var exec = yield proc.exec(proc_args);
     if (exec.error) {
-        error(options.settings.dgindex_type + "の実行に失敗しました");
+        options.error(options.settings.dgindex_type + "の実行に失敗しました");
         return false;
     }
 
@@ -121,13 +114,13 @@ core.on("source", co.wrap(function* (options) {
     try {
         dgindex_script = yield dgindex_avs.read("sjis");
     } catch(err) {
-        error("dgindex.avsの読み込みに失敗しました");
+        options.error("dgindex.avsの読み込みに失敗しました");
         return false;
     }
 
     var dgindex_arr = dgindex_script.split(/\r\n|\r|\n/);
     if (dgindex_arr[0] === "__vid__") {
-        error((options.settings.dgindex_type === "dgindex" ? "d2v" : "dgi") + "へのパスの取得に失敗しました");
+        options.error((options.settings.dgindex_type === "dgindex" ? "d2v" : "dgi") + "へのパスの取得に失敗しました");
         return false;
     }
     if (!/[\\/]/.test(dgindex_arr[0])) {
@@ -135,74 +128,21 @@ core.on("source", co.wrap(function* (options) {
     }
     output_video = dgindex_arr[0];
 
-    if (!options.settings.ts2aac) {
-        if (dgindex_arr[1] === "__aud__" || dgindex_arr[2] === "__del__") {
-            error("dgindex.avsの情報の取得に失敗しました");
-            return false;
-        }
-        if (!/[\\/]/.test(dgindex_arr[1])) {
-            dgindex_arr[1] = new File(options.temp).parent().childFile(dgindex_arr[1]).path;
-        }
-        output_audio.push(dgindex_arr[1]);
-        output_delay.push(parseFloat(dgindex_arr[2]));
+    if (dgindex_arr[1] === "__aud__" || dgindex_arr[2] === "__del__") {
+        options.error("dgindex.avsの情報の取得に失敗しました");
+        return false;
     }
-
-    if (options.settings.ts2aac) {
-        for (let i = 0; i < audio_pid.length; i++) {
-            //ts2aac_argsの設定
-            var ts2aac_args = options.settings.dgindex_type === "dgindexim" ? "" : "-B";
-            if (video_pid !== -1) {
-                ts2aac_args += " -v " + video_pid;
-                ts2aac_args += " -a " + audio_pid[i];
-            }
-
-            //ts2aacの実行
-            var proc2 = new Process('"${ts2aac}" -i "${input}" -o "${output}" ${args} > "${stdout}"');
-            var exec2 = yield proc2.exec({
-                ts2aac: options.settings.ts2aac_path,
-                input: options.input,
-                output: options.temp + ".ts2aac",
-                args: ts2aac_args,
-                stdout: ts2aac_txt.path
-            });
-            if (exec2.error) {
-                options.log("Error: ts2aacの実行に失敗しました");
-                return false;
-            }
-
-            //ts2aac_txtの読み込み
-            var ts2aac_out;
-            try {
-                ts2aac_out = yield ts2aac_txt.read("sjis");
-            } catch(err) {
-                error("ts2aac.txtの読み込みに失敗しました");
-                return false;
-            }
-
-            var ts2aac_arr = ts2aac_out.split(/\r\n|\r|\n/);
-            var ts2aac_audio, ts2aac_delay;
-            for (let j = 0; j < ts2aac_arr.length; j++) {
-                if (/^outfile/.test(ts2aac_arr[j])) {
-                    ts2aac_audio = ts2aac_arr[j].replace("outfile:", "");
-                }
-                if (/^audio/.test(ts2aac_arr[j])) {
-                    ts2aac_delay = parseInt(ts2aac_arr[j].match(/(-*\d+)ms/)[1]) / 1000;
-                }
-            }
-            if (!ts2aac_audio || !ts2aac_delay) {
-                error("ts2aac.txtの情報の取得に失敗しました");
-                return false;
-            }
-            output_audio.push(ts2aac_audio);
-            output_delay.push(ts2aac_delay);
-        }
+    if (!/[\\/]/.test(dgindex_arr[1])) {
+        dgindex_arr[1] = new File(options.temp).parent().childFile(dgindex_arr[1]).path;
     }
+    output_audio.push(dgindex_arr[1]);
+    output_delay.push(parseFloat(dgindex_arr[2]));
 
     //ファイルチェック
     var files = output_audio.concat(output_video);
     for (let i = 0; i < files.length; i++) {
         if (!(yield new File(files[i]).exists())) {
-            error('"' + files[i] + '"が存在しません');
+            options.error('"' + files[i] + '"が存在しません');
             return false;
         }
     }

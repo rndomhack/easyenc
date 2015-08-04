@@ -43,16 +43,6 @@
             "desc": "DGIndexIMの引数",
             "type": "string",
             "value": "-h"
-        },
-        "ts2aac": {
-            "desc": "ts2aacを使用して音声を分離する",
-            "type": "boolean",
-            "value": false
-        },
-        "ts2aac_path": {
-            "desc": "ts2aacへのパス",
-            "type": "file",
-            "value": "${user}\\bin\\ts2aac\\ts2aac.exe"
         }
     }
 }

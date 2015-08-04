@@ -1,0 +1,24 @@
+{
+    "name": "tsparser",
+    "description": "ts_parserを使用してMPEG2-TSを読み込みます",
+    "dependencies": [],
+    "type": "source",
+    "main": "main.js",
+    "settings": {
+        "tsparser_path": {
+            "desc": "ts_parserへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\MPEG-API_Utils\\bin\\ts_parser.exe"
+        },
+        "demux_video": {
+            "desc": "映像を分離する",
+            "type": "boolean",
+            "value": false
+        },
+        "use_vfp": {
+            "desc": "LibavVideoSourceの代わりにm2v.vfpを使用する",
+            "type": "boolean",
+            "value": false
+        }
+    }
+}
