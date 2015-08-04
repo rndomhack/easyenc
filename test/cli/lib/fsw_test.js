@@ -4,19 +4,22 @@ var fs = require("fs");
 var path = require("path");
 var os = require("os");
 var assert = require("assert");
+var rimraf = require("rimraf");
 
 var fsw = require("../../../cli/lib/fsw.js");
 
 describe("fsw", () => {
+
+    var tmpDest = os.tmpdir();
 
     describe("File", () => {
 
         var tmpBase = "autoconvert_test";
         var tmpExt = ".txt";
         var tmpName = tmpBase + tmpExt;
-        var tmpPath = path.join(os.tmpdir(), tmpName);
-        var tmpDestPath = path.join(os.tmpdir(), "autoconvert_test_dest");
-        var tmpDest2Path = path.join(os.tmpdir(), "autoconvert_test_dest2");
+        var tmpPath = path.join(tmpDest, tmpName);
+        var tmpDestPath = path.join(tmpDest, "autoconvert_test_dest");
+        var tmpDest2Path = path.join(tmpDest, "autoconvert_test_dest2");
         var tmpContent = Math.random().toString(36).slice(2) + "あいうえお日本語";
 
         before(() => {
@@ -29,6 +32,11 @@ describe("fsw", () => {
 
         it("should get path", () => {
             var file = new fsw.File(tmpPath);
+            assert.strictEqual(file.path, tmpPath);
+        });
+
+        it("should construct with multiple path", () => {
+            var file = new fsw.File(tmpDest, tmpName);
             assert.strictEqual(file.path, tmpPath);
         });
 
@@ -197,7 +205,7 @@ describe("fsw", () => {
         var fName = "autoconvert_test";
         var cfName = "tmp1";
         var cf2Name = "tmp2";
-        var fPath = path.join(os.tmpdir(), fName);
+        var fPath = path.join(tmpDest, fName);
         var cfPath = path.join(fPath, cfName);
         var cf2Path = path.join(fPath, cf2Name);
 
@@ -206,7 +214,7 @@ describe("fsw", () => {
         });
 
         after(() => {
-            fs.rmdirSync(fPath);
+            rimraf.sync(fPath);
         });
 
         it("should get path", () => {
@@ -290,9 +298,23 @@ describe("fsw", () => {
             assert.strictEqual(child.path, path.join(cfPath), "path");
         });
 
+        it("should get childFile with multiple path", () => {
+            var folder = new fsw.Folder(tmpDest);
+            var child = folder.childFile(fName, cfName);
+            assert(child instanceof fsw.File, "instanceof fsw.File");
+            assert.strictEqual(child.path, path.join(cfPath), "path");
+        });
+
         it("should get childFolder", () => {
             var folder = new fsw.Folder(fPath);
             var child = folder.childFolder(cfName);
+            assert(child instanceof fsw.Folder, "instanceof fsw.Direcotry");
+            assert.strictEqual(child.path, path.join(cfPath), "path");
+        });
+
+        it("should get childFolder with multiple path", () => {
+            var folder = new fsw.Folder(tmpDest);
+            var child = folder.childFolder(fName, cfName);
             assert(child instanceof fsw.Folder, "instanceof fsw.Direcotry");
             assert.strictEqual(child.path, path.join(cfPath), "path");
         });
