@@ -1,20 +1,20 @@
 {
-  "name": "autoconvert",
-  "version": "3.0.0",
-  "description": "AutoConvert is batch tool to convert MPEG-TS into other formats.",
+  "name": "easyenc",
+  "version": "0.0.1",
+  "description": "Easyenc is encode tool to convert any formats.",
   "scripts": {
     "test": "mocha --es_staging --harmony_arrow_functions --harmony_rest_parameters test/spec --recursive"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rndomhack/AutoConvert.git"
+    "url": "git+https://github.com/rndomhack/easyenc.git"
   },
   "author": "rndomhack",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/rndomhack/AutoConvert/issues"
+    "url": "https://github.com/rndomhack/easyenc/issues"
   },
-  "homepage": "https://github.com/rndomhack/AutoConvert#readme",
+  "homepage": "https://github.com/rndomhack/easyenc#readme",
   "private": true,
   "devDependencies": {
     "assert": "^1.3.0",
