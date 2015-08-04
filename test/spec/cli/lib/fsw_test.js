@@ -6,7 +6,7 @@ var os = require("os");
 var assert = require("assert");
 var rimraf = require("rimraf");
 
-var fsw = require("../../../cli/lib/fsw.js");
+var fsw = require("../../../../cli/lib/fsw.js");
 
 describe("fsw", () => {
 
@@ -210,6 +210,7 @@ describe("fsw", () => {
         var cf2Path = path.join(fPath, cf2Name);
 
         before(() => {
+            rimraf.sync(fPath);
             fs.mkdirSync(fPath);
         });
 

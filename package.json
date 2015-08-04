@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "AutoConvert is batch tool to convert MPEG-TS into other formats.",
   "scripts": {
-    "test": "mocha --es_staging --harmony_arrow_functions --harmony_rest_parameters test --recursive"
+    "test": "mocha --es_staging --harmony_arrow_functions --harmony_rest_parameters test/spec --recursive"
   },
   "repository": {
     "type": "git",
