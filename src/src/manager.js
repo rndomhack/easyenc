@@ -176,3 +176,9 @@ class Manager {
         }).bind(this));
     }
 }
+
+module.exports = {
+    Core: Core,
+    Plugin: Plugin,
+    Manager: Manager
+};
