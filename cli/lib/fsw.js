@@ -7,7 +7,7 @@ var encoding = require("encoding-japanese");
 
 class Fs {
     constructor(...args) {
-        this._path = path.resolve(...args);
+        this._path = path.resolve(path.join(...args));
     }
 
     stat() {
