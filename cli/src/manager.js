@@ -48,9 +48,9 @@ class Core {
                 return;
             }
 
-            this._events.get(event).forEach(func => {
+            for (let func of this._events.get(event).values()) {
                 yield func(options);
-            });
+            }
         }).bind(this));
     }
 }
@@ -163,15 +163,15 @@ class Manager {
             var plugin_root = new fsw.Folder(this._path);
             var plugin_folders = yield plugin_root.childFolders();
 
-            plugin_folders.forEach(plugin_folder => {
-                var plugin = new Plugin(plugin_folder.path);
+            for (let plugin_folder of plugin_folders) {
+                let plugin = new Plugin(plugin_folder.path);
                 try {
                     yield plugin.init();
                 } catch(err) {
-                    return;
+                    continue;
                 }
                 plugins[plugin.settings.name] = plugin;
-            });
+            }
 
             this._plugins = plugins;
         }).bind(this));
