@@ -6,10 +6,59 @@ var co = require("co");
 var cpw = require("../lib/cpw.js");
 var fsw = require("../lib/fsw.js");
 
+class Core {
+    constructor() {
+        this._events = new Map();
+    }
+
+    on(event, func) {
+        if (!this._events.has(event)) {
+            this._events.set(event, new Set());
+        }
+
+        if (this._events.get(event).has(func)) {
+            return this;
+        }
+
+        this._events.get(event).add(func);
+
+        return this;
+    }
+
+    off(event, func) {
+        if (!this._events.has(event)) {
+            return this;
+        }
+
+        if (!this._events.get(event).has(func)) {
+            return this;
+        }
+
+        this._events.get(event).delete(func);
+        if (this._events.get(event).size === 0) {
+            this._events.delete(event);
+        }
+
+        return this;
+    }
+
+    emit(event, options) {
+        return co((function* () {
+            if (!this._events.has(event)) {
+                return;
+            }
+
+            this._events.get(event).forEach(func => {
+                yield func(options);
+            });
+        }).bind(this));
+    }
+}
+
 class Plugin {
     constructor(path) {
         this._path = path;
-        this._core = new EventEmitter();
+        this._core = new Core();
         this._settings = null;
     }
 
