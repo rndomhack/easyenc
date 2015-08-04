@@ -1,0 +1,58 @@
+{
+    "name": "dgdecode",
+    "description": "DGDecodeを使用してMPEG2－TSを読み込みます",
+    "dependencies": ["avisynth"],
+    "type": "source",
+    "main": "main.js",
+    "settings": {
+        "dgindex_type": {
+            "desc": "使用するDGIndex",
+            "type": "option",
+            "value": {
+                "dgindex": "DGIndex",
+                "dgindexnv": "DGIndexNV",
+                "dgindexim": "DGIndexIM"
+            }
+        },
+        "dgindex_path": {
+            "desc": "DGIndexへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\dgmpgdec\\DGIndex.exe"
+        },
+        "dgindex_args": {
+            "desc": "DGIndexの引数",
+            "type": "string",
+            "value": "-hide"
+        },
+        "dgindexnv_path": {
+            "desc": "DGIndexNVへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\dgdecnv\\DGIndexNV.exe"
+        },
+        "dgindexnv_args": {
+            "desc": "DGIndexNVの引数",
+            "type": "string",
+            "value": "-h"
+        },
+        "dgindexim_path": {
+            "desc": "DGIndexIMへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\dgdecim\\DGIndexIM.exe"
+        },
+        "dgindexim_args": {
+            "desc": "DGIndexIMの引数",
+            "type": "string",
+            "value": "-h"
+        },
+        "ts2aac": {
+            "desc": "ts2aacを使用して音声を分離する",
+            "type": "boolean",
+            "value": false
+        },
+        "ts2aac_path": {
+            "desc": "ts2aacへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\ts2aac\\ts2aac.exe"
+        }
+    }
+}

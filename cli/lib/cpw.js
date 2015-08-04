@@ -23,7 +23,11 @@ class Process {
             });
 
             var exec = child_process.exec(command, this._options, (error, stdout, stderr) => {
-                resolve(error, stdout, stderr);
+                resolve({
+                    error: error,
+                    stdout: stdout,
+                    stderr: stderr
+                });
             });
         }).bind(this));
     }
