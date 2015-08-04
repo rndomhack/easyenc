@@ -1,0 +1,11 @@
+{
+    "globals": {
+        "log": false,
+        "error": false,
+        "co": false,
+        "Process": false,
+        "File": false,
+        "Folder": false,
+        "core": false
+    }
+}

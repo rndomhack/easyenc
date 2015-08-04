@@ -9,6 +9,7 @@
         "no-use-before-define": 0,
         "camelcase": 0,
         "key-spacing": 0,
-        "curly": 0
+        "curly": 0,
+        "quotes": 0
     }
 }

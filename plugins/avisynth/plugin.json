@@ -1,0 +1,14 @@
+{
+    "name": "avisynth",
+    "description": "AviSynthを使用して動画処理を行います",
+    "dependencies": [],
+    "type": "frameserver",
+    "main": "main.js",
+    "settings": {
+        "avs": {
+            "description": "使用するavsファイル",
+            "type": "filelist",
+            "value": "${user}\\avisynth_scripts"
+        }
+    }
+}
