@@ -5,7 +5,7 @@ var path = require("path");
 var os = require("os");
 var assert = require("assert");
 
-var fsw = require("../../src/lib/fsw");
+var fsw = require("../../../src/lib/fsw.js");
 
 describe("fsw", () => {
 
