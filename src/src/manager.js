@@ -98,10 +98,11 @@ class Plugin {
             }
 
             var context = {
+                log: console.log,
+                co: co,
                 Process: cpw.Process,
                 File: fsw.File,
                 Folder: fsw.Folder,
-                log: console.log,
                 core: this._core
             };
             try {
