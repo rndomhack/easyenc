@@ -7,7 +7,6 @@
         "no-console": 0
     },
     "globals": {
-        "require": false,
-        "keyboardJS": false
+        "require": false
     }
 }
