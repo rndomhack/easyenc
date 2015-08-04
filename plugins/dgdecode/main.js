@@ -15,21 +15,25 @@ core.on("source", co.wrap(function* (options) {
     var avs = new File(options.temp + ".avs");
     var dgindex_avs = new File(options.temp + ".dgindex.avs");
     var fake_avs = new File(options.temp + ".dgindex.fake.avs");
-    var output_video, output_audio = [], output_delay = [], vformat = "";
+    var output_video,
+        output_audio = [],
+        output_delay = [],
+        vformat = "",
+        aformat = "LWLibavAudioSource_";
 
-    //pidの列挙
+    // pidの列挙
     var video_pid = -1;
     var audio_pid = [-1];
     if ("info" in options.global) {
         if ("video" in options.global.info || "audio" in options.global.info) {
             video_pid = options.global.info.video[0].id;
-            audio_pid = options.global.info.audio.map(function (value) {
+            audio_pid = options.global.info.audio.map(value => {
                 return value.id;
             });
         }
     }
 
-    //fake_avsの書き込み
+    // fake_avsの書き込み
     var fake_script = "__vid__\r\n__aud__\r\n__del__";
     try {
         yield fake_avs.write(fake_script, "sjis");
@@ -38,7 +42,7 @@ core.on("source", co.wrap(function* (options) {
         return false;
     }
 
-    //dgindex_argsの設定
+    // dgindex_argsの設定
     var dgindex_args = "";
     if (options.settings.dgindex_type === "dgindex") {
         vformat = "MPEG2Source_";
@@ -69,7 +73,7 @@ core.on("source", co.wrap(function* (options) {
         dgindex_args += " -a";
     }
 
-    //dgindexの実行
+    // dgindexの実行
     var proc_command, proc_args;
     if (options.settings.dgindex_type === "dgindex") {
         proc_command = '"${dgindex}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
@@ -109,7 +113,7 @@ core.on("source", co.wrap(function* (options) {
         return false;
     }
 
-    //dgindex_avsの読み込み
+    // dgindex_avsの読み込み
     var dgindex_script;
     try {
         dgindex_script = yield dgindex_avs.read("sjis");
@@ -138,7 +142,7 @@ core.on("source", co.wrap(function* (options) {
     output_audio.push(dgindex_arr[1]);
     output_delay.push(parseFloat(dgindex_arr[2]));
 
-    //ファイルチェック
+    // ファイルチェック
     var files = output_audio.concat(output_video);
     for (let i = 0; i < files.length; i++) {
         if (!(yield new File(files[i]).exists())) {
@@ -147,21 +151,43 @@ core.on("source", co.wrap(function* (options) {
         }
     }
 
-    //global.inputの設定
+    // global.inputの設定
     var video = {
-        path: output_video,
-        format: vformat + '("${path}")'
+        path: output_video
     };
-    var audio = output_audio.map(function (value, index) {
+    var audio = output_audio.map((value, index) => {
         return {
             path: output_audio[index],
             delay: output_delay[index]
         };
     });
-    options.global.input = {
+
+    var input = options.global.input = {
         video: video,
         audio: audio
     };
+
+    // scriptの形式に変換
+    var script_video = `${vformat}("${input.video.path}")`;
+    var script_audio = "";
+    var script_delay = "";
+
+    input.audio.forEach((value, index) => {
+        var script_audio_selected = `${aformat}("${value.path}")`;
+        var script_delay_selected = value.delay;
+        if (index === 0) {
+            script_audio = script_audio_selected;
+            script_delay = script_delay_selected;
+        } else {
+            script_audio = '"__audioid__" == "' + index + '" ? ' + script_audio_selected + ' : ' + script_audio;
+            script_delay = '"__audioid__" == "' + index + '" ? ' + script_delay_selected + ' : ' + script_delay;
+        }
+    });
+
+    // global.avisynthに設定
+    options.global.avisynth.__video__ = script_video;
+    options.global.avisynth.__audio__ = script_audio;
+    options.global.avisynth.__delay__ = script_delay;
 
     return true;
 }));

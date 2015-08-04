@@ -10,20 +10,48 @@ core.on("source", co.wrap(function* (options) {
         return false;
     }
 
-    var input = options.global.input = {};
     var info = options.global.info;
+    var vformat = "LSMASHVideoSource_", aformat = "LSMASHAudioSource_";
     var video_delay = "source_delay" in info.video[0] ? info.video[0].source_delay : 0;
-    input.video = {
+
+    // global.inputの設定
+    var video = {
         path: options.input,
-        format: 'LSMASHVideoSource("${path}", track = ' + info.video[0].id + ')'
+        id: info.video[0].id
     };
-    input.audio = info.audio.map(function (value) {
+    var audio = info.audio.map(value => {
         return {
             path: options.input,
-            format: 'LSMASHAudioSource("${path}", track = ' + value.id + ')',
+            id: value.id,
             delay: "source_delay" in value ? (value.source_delay - video_delay) / 1000 : -(video_delay / 1000)
         };
     });
+    var input = options.global.input = {
+        video: video,
+        audio: audio
+    };
+
+    // scriptの形式に変換
+    var script_video = `${vformat}("${input.video.path}", track = ${input.video.id})`;
+    var script_audio = "";
+    var script_delay = "";
+
+    input.audio.forEach((value, index) => {
+        var script_audio_selected = `${aformat}("${value.path}", track = ${value.id})`;
+        var script_delay_selected = value.delay;
+        if (index === 0) {
+            script_audio = script_audio_selected;
+            script_delay = script_delay_selected;
+        } else {
+            script_audio = '"__audioid__" == "' + index + '" ? ' + script_audio_selected + ' : ' + script_audio;
+            script_delay = '"__audioid__" == "' + index + '" ? ' + script_delay_selected + ' : ' + script_delay;
+        }
+    });
+
+    // global.avisynthに設定
+    options.global.avisynth.__video__ = script_video;
+    options.global.avisynth.__audio__ = script_audio;
+    options.global.avisynth.__delay__ = script_delay;
 
     return true;
 }));

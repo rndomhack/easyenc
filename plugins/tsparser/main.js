@@ -12,6 +12,7 @@ core.on("initialize", co.wrap(function* (options) {
 
 core.on("source", co.wrap(function* (options) {
     var tsparser_txt = new File(options.temp + ".tsparser.txt");
+    var vformat = "LWLibavVideoSource_", aformat = "LWLibavAudioSource_";
 
     //tsparserの実行
     var proc = new Process('"${tsparser}" --output "${output}" --mode ${mode} --delay-type ${delaytype} --debug 2 --log "${log}" "${input}"');
@@ -40,7 +41,7 @@ core.on("source", co.wrap(function* (options) {
 
     //pidの取得
     var video_id = [], audio_id = [];
-    tsparser_arr.forEach(function (value) {
+    tsparser_arr.forEach(value => {
         var match = value.match(/\[check\] ([^ ]+) PID:(0x[\dA-F]+) {2}stream_type:(0x[\dA-F]+)/);
         if (!match) return;
         if (match[1] === "video") {
@@ -60,7 +61,7 @@ core.on("source", co.wrap(function* (options) {
     }
 
     //ファイルチェック
-    var regexp_base = (new File(options.temp).base + ".tsparser").replace(/\W/g, function (str) {
+    var regexp_base = (new File(options.temp).base + ".tsparser").replace(/\W/g, str => {
         return "\\" + str;
     });
     var temp_parent = new File(options.temp).parent();
@@ -112,8 +113,8 @@ core.on("source", co.wrap(function* (options) {
 
     //global.infoの内容と照合
     if ("info" in options.global) {
-        video_files = video_files.filter(function (value) {
-            var filter = options.global.info.video.filter(function (value2) {
+        video_files = video_files.filter(value => {
+            var filter = options.global.info.video.filter(value2 => {
                 return value.id === value2.id;
             });
             return filter.length !== 0;
@@ -122,8 +123,8 @@ core.on("source", co.wrap(function* (options) {
             options.error("必要な出力映像ファイルが存在しません");
             return false;
         }
-        audio_files = audio_files.filter(function (value) {
-            var filter = options.global.info.audio.filter(function (value2) {
+        audio_files = audio_files.filter(value => {
+            var filter = options.global.info.audio.filter(value2 => {
                 return value.id === value2.id;
             });
             return filter.length !== 0;
@@ -135,10 +136,32 @@ core.on("source", co.wrap(function* (options) {
     }
 
     //global.inputの設定
-    options.global.input = {
+    var input = options.global.input = {
         video: video_files[0],
         audio: audio_files
     };
+
+    // scriptの形式に変換
+    var script_video = `${vformat}("${input.video.path}"${"index" in input.video ? ", stream_index = " + input.video.index : ""})`;
+    var script_audio = "";
+    var script_delay = "";
+
+    input.audio.forEach((value, index) => {
+        var script_audio_selected = `${aformat}("${value.path}")`;
+        var script_delay_selected = value.delay;
+        if (index === 0) {
+            script_audio = script_audio_selected;
+            script_delay = script_delay_selected;
+        } else {
+            script_audio = '"__audioid__" == "' + index + '" ? ' + script_audio_selected + ' : ' + script_audio;
+            script_delay = '"__audioid__" == "' + index + '" ? ' + script_delay_selected + ' : ' + script_delay;
+        }
+    });
+
+    // global.avisynthに設定
+    options.global.avisynth.__video__ = script_video;
+    options.global.avisynth.__audio__ = script_audio;
+    options.global.avisynth.__delay__ = script_delay;
 
     return true;
 }));
