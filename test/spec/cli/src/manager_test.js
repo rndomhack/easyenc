@@ -4,7 +4,7 @@ var fs = require("fs");
 var path = require("path");
 var os = require("os");
 var assert = require("assert");
-var rimraf = require("rimraf");
+var del = require("del");
 
 var manager = require("../../../../cli/src/manager.js");
 var Core = manager.Core;
@@ -26,7 +26,7 @@ core.on("initialize", co.wrap(function* (options) {
     options.name = "test";
 }));`;
 
-        rimraf.sync(tmp);
+        del.sync(tmp, { force: true });
         fs.mkdirSync(tmp);
         fs.mkdirSync(tmp2);
         fs.writeFileSync(path.join(tmp2, "plugin.json"), JSON.stringify(json), "utf8");
@@ -34,7 +34,7 @@ core.on("initialize", co.wrap(function* (options) {
     });
 
     after(() => {
-        rimraf.sync(tmp);
+        del.sync(tmp, { force: true });
     });
 
     it("Core", done => {

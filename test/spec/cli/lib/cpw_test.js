@@ -32,14 +32,10 @@ describe("cpw", () => {
             assert.strictEqual(options.param, "test");
         });
 
-        it("should exec", done => {
+        it("should exec", () => {
             var process = new Process("node -e process.exit(1)");
-            process.exec().then(returns => {
+            return process.exec().then(returns => {
                 assert.strictEqual(returns.error.code, 1);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
             });
         });
 

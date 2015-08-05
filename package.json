@@ -18,8 +18,8 @@
   "private": true,
   "devDependencies": {
     "assert": "^1.3.0",
-    "mocha": "https://github.com/mochajs/mocha.git",
-    "rimraf": "^2.4.2"
+    "del": "^1.2.0",
+    "mocha": "https://github.com/mochajs/mocha.git"
   },
   "dependencies": {
     "co": "^4.6.0",

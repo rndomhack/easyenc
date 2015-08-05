@@ -4,398 +4,308 @@ var fs = require("fs");
 var path = require("path");
 var os = require("os");
 var assert = require("assert");
-var rimraf = require("rimraf");
+var del = require("del");
 
 var fsw = require("../../../../cli/lib/fsw.js");
 
 describe("fsw", () => {
 
-    var tmpDest = os.tmpdir();
+    var tmp = os.tmpdir();
+    var tmpName = "easyenc_test";
+    var tmpPath = path.join(tmp, tmpName);
 
     describe("File", () => {
 
-        var tmpBase = "autoconvert_test";
-        var tmpExt = ".txt";
-        var tmpName = tmpBase + tmpExt;
-        var tmpPath = path.join(tmpDest, tmpName);
-        var tmpDestPath = path.join(tmpDest, "autoconvert_test_dest");
-        var tmpDest2Path = path.join(tmpDest, "autoconvert_test_dest2");
+        var file1_base = "easyenc";
+        var file1_ext = ".txt";
+        var file1 = file1_base + file1_ext;
+
+        var file2 = "easyenc2";
+        var file3 = "easyenc3";
+
         var tmpContent = Math.random().toString(36).slice(2) + "あいうえお日本語";
 
         before(() => {
-            fs.writeFileSync(tmpPath, tmpContent);
+            del.sync(tmpPath, { force: true });
+            fs.mkdirSync(tmpPath);
+            fs.writeFileSync(path.join(tmpPath, file1), tmpContent, "utf8");
         });
 
         after(() => {
-            fs.unlinkSync(tmpPath);
+            del.sync(tmpPath, { force: true });
+        });
+
+        afterEach(() => {
+            del.sync([
+                path.join(tmpPath, file2),
+                path.join(tmpPath, file3)
+            ], { force: true });
         });
 
         it("should get path", () => {
-            var file = new fsw.File(tmpPath);
-            assert.strictEqual(file.path, tmpPath);
+            var p = path.join(tmpPath, file1);
+            var file = new fsw.File(p);
+            assert.strictEqual(file.path, p);
         });
 
         it("should construct with multiple path", () => {
-            var file = new fsw.File(tmpDest, tmpName);
-            assert.strictEqual(file.path, tmpPath);
+            var file = new fsw.File(tmpPath, file1);
+            assert.strictEqual(file.path, path.join(tmpPath, file1));
         });
 
         it("should get name", () => {
-            var file = new fsw.File(tmpPath);
-            assert.strictEqual(file.name, tmpName);
+            var file = new fsw.File(tmpPath, file1);
+            assert.strictEqual(file.name, file1);
         });
 
         it("should get base", () => {
-            var file = new fsw.File(tmpPath);
-            assert.strictEqual(file.base, tmpBase);
+            var file = new fsw.File(tmpPath, file1);
+            assert.strictEqual(file.base, file1_base);
         });
 
         it("should get ext", () => {
-            var file = new fsw.File(tmpPath);
-            assert.strictEqual(file.ext, tmpExt);
+            var file = new fsw.File(tmpPath, file1);
+            assert.strictEqual(file.ext, file1_ext);
         });
 
-        it("should get stats", done => {
-            var file = new fsw.File(tmpPath);
-            file.stat().then(() => {
-                assert(true);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
-            });
+        it("should get stats", () => {
+            var file = new fsw.File(tmpPath, file1);
+            return file.stat().then(() => assert(true));
         });
 
-        it("should exist", done => {
-            var file = new fsw.File(tmpPath);
-            file.exists().then(exists => {
-                assert(exists);
-                done();
-            });
+        it("should exist", () => {
+            var file = new fsw.File(tmpPath, file1);
+            return file.exists().then(exists => assert(exists));
         });
 
         it("should get parent directory", () => {
-            var file = new fsw.File(tmpPath);
+            var file = new fsw.File(tmpPath, file1);
             var parent = file.parent();
             assert(parent instanceof fsw.Folder, "instanceof fsw.Folder");
-            var parentPath = parent.path;
-            assert.strictEqual(parentPath, path.dirname(file.path), "path");
+            assert.strictEqual(parent.path, path.dirname(file.path), "path");
         });
 
-        it("should copy", done => {
-            var file = new fsw.File(tmpPath);
-            var destFile = new fsw.File(tmpDestPath);
-            file.copy(destFile).then(() => {
+        it("should copy", () => {
+            var file = new fsw.File(tmpPath, file1);
+            var destFile = new fsw.File(tmpPath, file2);
+            return file.copy(destFile).then(() => {
                 var txt = fs.readFileSync(destFile.path, "utf8");
                 assert.strictEqual(txt, tmpContent);
-                fs.unlinkSync(destFile.path);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
             });
         });
 
-        it("should move", done => {
-            fs.writeFileSync(tmpDestPath, tmpContent);
-            var file = new fsw.File(tmpDestPath);
-            var destFile = new fsw.File(tmpDest2Path);
-            file.move(destFile).then(() => {
-                file.exists().then(() => {
-                    assert(false);
-                    done();
-                }).catch(() => {
-                    destFile.exists().then(() => {
-                        var txt = fs.readFileSync(destFile.path, "utf8");
-                        assert.strictEqual(txt, tmpContent);
-                        fs.unlinkSync(destFile.path);
-                        done();
-                    }).catch(() => {
-                        assert(false);
-                        done();
-                    });
+        it("should move", () => {
+            var file = new fsw.File(tmpPath, file2);
+            var destFile = new fsw.File(tmpPath, file3);
+
+            fs.writeFileSync(file.path, tmpContent, "utf8");
+
+            return file.move(destFile)
+                .then(() => file.exists())
+                .then(exists => {
+                    assert(!exists);
+                    return destFile.exists();
+                })
+                .then(exists => {
+                    var txt = fs.readFileSync(destFile.path, "utf8");
+                    assert.strictEqual(txt, tmpContent);
                 });
-            }).catch(() => {
-                assert(false);
-                done();
+        });
+
+        it("should make", () => {
+            var file = new fsw.File(tmpPath, file2);
+
+            return file.make()
+                .then(() => file.exists())
+                .then(exists => assert(exists));
+        });
+
+        it("should remove", () => {
+            var file = new fsw.File(tmpPath, file2);
+
+            return file.make()
+                .then(() => file.exists())
+                .then(exists => {
+                    assert(exists);
+                    return file.remove();
+                })
+                .then(() => file.exists())
+                .then(exists => assert(!exists));
+        });
+
+        it("should read", () => {
+            var file = new fsw.File(tmpPath, file1);
+
+            return file.read("utf8").then(txt => {
+                assert.strictEqual(txt, tmpContent);
             });
         });
 
-        it("should make", done => {
-            var file = new fsw.File(tmpDestPath);
-            file.make().then(() => {
-                file.exists().then(() => {
-                    assert(true);
-                    fs.unlinkSync(file.path);
-                    done();
-                }).catch(() => {
-                    assert(false);
-                    done();
-                });
-            }).catch(() => {
-                assert(false);
-                done();
-            });
-        });
+        it("should write", () => {
+            var file = new fsw.File(tmpPath, file2);
 
-        it("should remove", done => {
-            var file = new fsw.File(tmpDestPath);
-            file.make().then(file.remove()).then(() => {
-                file.exists().then(() => {
-                    assert(false);
-                    fs.unlinkSync(file.path);
-                    done();
-                }).catch(() => {
-                    assert(true);
-                    done();
-                });
-            }).catch(() => {
-                assert(false);
-                fs.unlinkSync(file.path);
-                done();
-            });
-        });
-
-        it("should read", done => {
-            var file = new fsw.File(tmpPath);
-            file.read("utf8").then(data => {
-                assert.strictEqual(data, tmpContent);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
-            });
-        });
-
-        it("should write", done => {
-            var file = new fsw.File(tmpDestPath);
-            file.write(tmpContent, "utf8").then(() => {
+            return file.write(tmpContent, "utf8").then(() => {
                 var txt = fs.readFileSync(file.path, "utf8");
                 assert.strictEqual(txt, tmpContent);
-                fs.unlinkSync(file.path);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
             });
         });
 
-        it("should write and read in SJIS", done => {
-            var file = new fsw.File(tmpDestPath);
-            file.write(tmpContent, "SJIS").then(() => {
-                file.read("SJIS").then(data => {
-                    assert.strictEqual(data, tmpContent);
-                    fs.unlinkSync(file.path);
-                    done();
-                }).catch(() => {
-                    assert(false, "read");
-                    fs.unlinkSync(file.path);
-                    done();
+        it("should write and read in SJIS", () => {
+            var file = new fsw.File(tmpPath, file2);
+
+            return file.write(tmpContent, "SJIS")
+                .then(() => file.read("SJIS"))
+                .then(txt => {
+                    assert.strictEqual(txt, tmpContent);
                 });
-            }).catch(() => {
-                assert(false, "write");
-                done();
-            });
         });
 
     });
 
     describe("Folder", () => {
 
-        var fName = "autoconvert_test";
-        var cfName = "tmp1";
-        var cf2Name = "tmp2";
-        var fPath = path.join(tmpDest, fName);
-        var cfPath = path.join(fPath, cfName);
-        var cf2Path = path.join(fPath, cf2Name);
+        var dir1 = "tmp1";
+        var dir2 = "tmp2";
 
         before(() => {
-            rimraf.sync(fPath);
-            fs.mkdirSync(fPath);
+            del.sync(tmpPath, { force: true });
+            fs.mkdirSync(tmpPath);
         });
 
         after(() => {
-            rimraf.sync(fPath);
+            del.sync(tmpPath, { force: true });
+        });
+
+        afterEach(() => {
+            del.sync([
+                path.join(tmpPath, dir1),
+                path.join(tmpPath, dir2)
+            ], { force: true });
         });
 
         it("should get path", () => {
-            var folder = new fsw.Folder(fPath);
-            assert.strictEqual(folder.path, fPath);
+            var folder = new fsw.Folder(tmpPath);
+            assert.strictEqual(folder.path, tmpPath);
         });
 
-        it("should get stats", done => {
-            var folder = new fsw.Folder(fPath);
-            folder.stat().then(() => {
-                assert(true);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
-            });
+        it("should construct with multiple path", () => {
+            var folder = new fsw.Folder(tmpPath, dir1);
+            assert.strictEqual(folder.path, path.join(tmpPath, dir1));
         });
 
-        it("should exist", done => {
-            var folder = new fsw.Folder(fPath);
-            folder.exists().then(() => {
-                assert(true);
-                done();
-            }).catch(() => {
-                assert(false);
-                done();
-            });
+        it("should get stats", () => {
+            var folder = new fsw.Folder(tmpPath);
+            return folder.stat().then(() => assert(true));
+        });
+
+        it("should exist", () => {
+            var folder = new fsw.Folder(tmpPath);
+            return folder.exists().then(exists => assert(exists));
         });
 
         it("should get parent directory", () => {
-            var folder = new fsw.Folder(fPath);
+            var folder = new fsw.Folder(tmpPath, dir1);
             var parent = folder.parent();
             assert(parent instanceof fsw.Folder, "instanceof fsw.Folder");
-            var parentPath = parent.path;
-            assert.strictEqual(parentPath, path.dirname(folder.path), "path");
+            assert.strictEqual(parent.path, tmpPath, "path");
         });
 
-        it("should make", done => {
-            var folder = new fsw.Folder(cfPath);
-            folder.make().then(() => {
-                folder.exists().then(() => {
-                    assert(true);
-                    fs.rmdirSync(folder.path);
-                    done();
-                }).catch(() => {
-                    assert(false);
-                    done();
-                });
-            }).catch(() => {
-                assert(false);
-                done();
-            });
+        it("should make", () => {
+            var folder = new fsw.Folder(tmpPath, dir1);
+
+            return folder.make()
+                .then(() => folder.exists())
+                .then(exists => assert(exists));
         });
 
-        it("should remove", done => {
-            var folder = new fsw.Folder(cfPath);
-            folder.make().then(folder.remove()).then(() => {
-                folder.exists().then(() => {
-                    assert(false);
-                    fs.rmdirSync(folder.path);
-                    done();
-                }).catch(() => {
-                    assert(true);
-                    done();
-                });
-            }).catch(() => {
-                assert(false);
-                folder.exists().then(() => {
-                    fs.rmdirSync(folder.path);
-                    done();
-                }).catch(() => {
-                    done();
-                });
-            });
+        it("should remove", () => {
+            var folder = new fsw.Folder(tmpPath, dir1);
+
+            return folder.make()
+                .then(folder.remove())
+                .then(() => folder.exists())
+                .then(exists => assert(!exists));
         });
 
         it("should get childFile", () => {
-            var folder = new fsw.Folder(fPath);
-            var child = folder.childFile(cfName);
+            var folder = new fsw.Folder(tmpPath);
+            var child = folder.childFile(dir1);
             assert(child instanceof fsw.File, "instanceof fsw.File");
-            assert.strictEqual(child.path, path.join(cfPath), "path");
+            assert.strictEqual(child.path, path.join(tmpPath, dir1), "path");
         });
 
         it("should get childFile with multiple path", () => {
-            var folder = new fsw.Folder(tmpDest);
-            var child = folder.childFile(fName, cfName);
+            var folder = new fsw.Folder(tmpPath);
+            var child = folder.childFile(dir1, dir2);
             assert(child instanceof fsw.File, "instanceof fsw.File");
-            assert.strictEqual(child.path, path.join(cfPath), "path");
+            assert.strictEqual(child.path, path.join(tmpPath, dir1, dir2), "path");
         });
 
         it("should get childFolder", () => {
-            var folder = new fsw.Folder(fPath);
-            var child = folder.childFolder(cfName);
+            var folder = new fsw.Folder(tmpPath);
+            var child = folder.childFolder(dir1);
             assert(child instanceof fsw.Folder, "instanceof fsw.Direcotry");
-            assert.strictEqual(child.path, path.join(cfPath), "path");
+            assert.strictEqual(child.path, path.join(tmpPath, dir1), "path");
         });
 
         it("should get childFolder with multiple path", () => {
-            var folder = new fsw.Folder(tmpDest);
-            var child = folder.childFolder(fName, cfName);
-            assert(child instanceof fsw.Folder, "instanceof fsw.Direcotry");
-            assert.strictEqual(child.path, path.join(cfPath), "path");
+            var folder = new fsw.Folder(tmpPath);
+            var child = folder.childFolder(dir1, dir2);
+            assert(child instanceof fsw.Folder, "instanceof fsw.Folder");
+            assert.strictEqual(child.path, path.join(tmpPath, dir1, dir2), "path");
         });
 
-        it("should get children", done => {
-            fs.mkdirSync(cfPath);
-            fs.writeFileSync(cf2Path, "", "utf8");
-            var folder = new fsw.Folder(fPath);
-            folder.children().then(children => {
+        it("should get children", () => {
+            fs.mkdirSync(path.join(tmpPath, dir1));
+            fs.writeFileSync(path.join(tmpPath, dir2), "", "utf8");
+            var folder = new fsw.Folder(tmpPath);
+
+            return folder.children().then(children => {
                 assert(children.length === 2, "length");
                 assert(children[0] instanceof fsw.Folder, "first child is folder");
                 assert(children[1] instanceof fsw.File, "second child is file");
-                assert(children[0].path, cfPath, "first child path");
-                assert(children[1].path, cf2Path, "second child path");
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
-            }).catch(() => {
-                assert(false);
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
+                assert(children[0].path, path.join(tmpPath, dir1), "first child path");
+                assert(children[1].path, path.join(tmpPath, dir2), "second child path");
             });
         });
 
-        it("should get children with regexp", done => {
-            var regexp = new RegExp(cf2Name);
-            fs.mkdirSync(cfPath);
-            fs.writeFileSync(cf2Path, "", "utf8");
-            var folder = new fsw.Folder(fPath);
-            folder.children(regexp).then(children => {
+        it("should get children with regexp", () => {
+            fs.mkdirSync(path.join(tmpPath, dir1));
+            fs.writeFileSync(path.join(tmpPath, dir2), "", "utf8");
+
+            var folder = new fsw.Folder(tmpPath);
+            var regexp = new RegExp(dir2);
+
+            return folder.children(regexp).then(children => {
                 assert(children.length === 1, "length");
                 assert(children[0] instanceof fsw.File, "first child is file");
-                assert(children[0].path, cf2Path, "first child path");
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
-            }).catch(() => {
-                assert(false);
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
+                assert(children[0].path, path.join(tmpPath, dir2), "first child path");
             });
         });
 
-        it("should get childFiles", done => {
-            fs.mkdirSync(cfPath);
-            fs.writeFileSync(cf2Path, "", "utf8");
-            var folder = new fsw.Folder(fPath);
-            folder.childFiles().then(children => {
+        it("should get childFiles", () => {
+            fs.mkdirSync(path.join(tmpPath, dir1));
+            fs.writeFileSync(path.join(tmpPath, dir2), "", "utf8");
+
+            var folder = new fsw.Folder(tmpPath);
+
+            return folder.childFiles().then(children => {
                 assert(children.length === 1, "length");
-                assert(children[0] instanceof fsw.File, "first child is folder");
-                assert(children[0].path, cfPath, "first child path");
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
-            }).catch(() => {
-                assert(false);
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
+                assert(children[0] instanceof fsw.File, "first child is file");
+                assert(children[0].path, path.join(tmpPath, dir2), "first child path");
             });
         });
 
-        it("should get childFolders", done => {
-            fs.mkdirSync(cfPath);
-            fs.writeFileSync(cf2Path, "", "utf8");
-            var folder = new fsw.Folder(fPath);
-            folder.childFolders().then(children => {
+        it("should get childFolders", () => {
+            fs.mkdirSync(path.join(tmpPath, dir1));
+            fs.writeFileSync(path.join(tmpPath, dir2), "", "utf8");
+
+            var folder = new fsw.Folder(tmpPath);
+
+            return folder.childFolders().then(children => {
                 assert(children.length === 1, "length");
-                assert(children[0] instanceof fsw.Folder, "first child is file");
-                assert(children[0].path, cf2Path, "first child path");
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
-            }).catch(() => {
-                assert(false);
-                fs.rmdirSync(cfPath);
-                fs.unlinkSync(cf2Path);
-                done();
+                assert(children[0] instanceof fsw.Folder, "first child is Folder");
+                assert(children[0].path, path.join(tmpPath, dir1), "first child path");
             });
         });
 
