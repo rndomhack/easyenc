@@ -214,7 +214,7 @@ class Folder extends Fs {
         return new Folder(path.join.apply(null, [this._path].concat(args)));
     }
 
-    children() {
+    children(reg) {
         var readdir = (arg) => {
             return new Promise((resolve2, reject2) => {
                 fs.readdir(arg, (err, files) => {
@@ -224,6 +224,9 @@ class Folder extends Fs {
                     }
 
                     files = files.map(value => path.join(arg, value));
+                    if (util.isRegExp(reg)) {
+                        files = files.filter(value => reg.test(value));
+                    }
                     resolve2(files);
                 });
             });
@@ -253,16 +256,16 @@ class Folder extends Fs {
         });
     }
 
-    childFiles() {
-        return this.children().then(files => {
+    childFiles(reg) {
+        return this.children(reg).then(files => {
             return files.filter(value => {
                 return value instanceof File;
             });
         });
     }
 
-    childFolders() {
-        return this.children().then(files => {
+    childFolders(reg) {
+        return this.children(reg).then(files => {
             return files.filter(value => {
                 return value instanceof Folder;
             });
