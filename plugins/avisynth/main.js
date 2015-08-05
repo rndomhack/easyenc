@@ -20,7 +20,7 @@ core.on("frameserver", co.wrap(function* (options) {
     var imports = "";
     var files;
     try {
-        scripts.childFiles(/\.avsi$/);
+        files = yield scripts.childFiles(/\.avsi$/);
     } catch(err) {
         options.error("avsiの取得に失敗しました");
         return false;

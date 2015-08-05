@@ -1,7 +1,7 @@
 "use strict";
 
 core.on("initialize", co.wrap(function* (options) {
-    var tsparser = new File(options.params.tsparser_path);
+    var tsparser = new File(options.settings.tsparser_path);
 
     if (!(yield tsparser.exists())) {
         options.error("ts_parserが存在しません");
@@ -17,10 +17,10 @@ core.on("source", co.wrap(function* (options) {
     //tsparserの実行
     var proc = new Process('"${tsparser}" --output "${output}" --mode ${mode} --delay-type ${delaytype} --debug 2 --log "${log}" "${input}"');
     var exec = yield proc.exec({
-        tsparser: options.params.tsparser_path,
+        tsparser: options.settings.tsparser_path,
         output: options.temp + ".tsparser",
-        mode: "d" + (options.params.demux_video ? "v" : "") + "a",
-        delaytype: options.params.delay_type,
+        mode: "d" + (options.settings.demux_video ? "v" : "") + "a",
+        delaytype: options.settings.delay_type,
         log: tsparser_txt.path,
         input: options.input
     });
@@ -67,9 +67,9 @@ core.on("source", co.wrap(function* (options) {
     var temp_parent = new File(options.temp).parent();
     var files, video_files = [], audio_files = [];
 
-    if (options.params.demux_video) {
+    if (options.settings.demux_video) {
         for (let i = 0; i < video_id.length; i++) {
-            files = temp_parent.findFiles(new RegExp(regexp_base + " PID " + video_id[i].toString(16)));
+            files = temp_parent.childFiles(new RegExp(regexp_base + " PID " + video_id[i].toString(16)));
             if (files.length !== 1) {
                 options.error("出力映像ファイルが存在しません");
                 return false;
@@ -98,7 +98,7 @@ core.on("source", co.wrap(function* (options) {
     }
 
     for (let i = 0; i < audio_id.length; i++) {
-        files = temp_parent.findFiles(new RegExp(regexp_base + " PID " + audio_id[i].toString(16)));
+        files = temp_parent.childFiles(new RegExp(regexp_base + " PID " + audio_id[i].toString(16)));
         if (files.length !== 1) {
             options.error("出力音声ファイルが存在しません");
             return false;
