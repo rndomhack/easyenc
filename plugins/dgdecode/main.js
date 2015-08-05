@@ -12,9 +12,9 @@ core.on("initialize", co.wrap(function* (options) {
 }));
 
 core.on("source", co.wrap(function* (options) {
-    var avs = new File(options.temp + ".avs");
-    var dgindex_avs = new File(options.temp + ".dgindex.avs");
-    var fake_avs = new File(options.temp + ".dgindex.fake.avs");
+    var avs = new File(options.path.temp + ".avs");
+    var dgindex_avs = new File(options.path.temp + ".dgindex.avs");
+    var fake_avs = new File(options.path.temp + ".dgindex.fake.avs");
     var output_video,
         output_audio = [],
         output_delay = [],
@@ -79,8 +79,8 @@ core.on("source", co.wrap(function* (options) {
         proc_command = '"${dgindex}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
         proc_args = {
             dgindex: options.params.dgindex_path,
-            input: options.input,
-            output: options.temp + ".dgindex",
+            input: options.path.input,
+            output: options.path.temp + ".dgindex",
             avs: fake_avs.path,
             args: dgindex_args
         };
@@ -89,8 +89,8 @@ core.on("source", co.wrap(function* (options) {
         proc_command = '"${dgindexnv}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
         proc_args = {
             dgindexnv: options.params.dgindexnv_path,
-            input: options.input,
-            output: options.temp + ".dgindex.dgi",
+            input: options.path.input,
+            output: options.path.temp + ".dgindex.dgi",
             avs: fake_avs.path,
             args: dgindex_args
         };
@@ -99,8 +99,8 @@ core.on("source", co.wrap(function* (options) {
         proc_command = '"${dgindexim}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
         proc_args = {
             dgindexim: options.params.dgindexim_path,
-            input: options.input,
-            output: options.temp + ".dgindex.dgi",
+            input: options.path.input,
+            output: options.path.temp + ".dgindex.dgi",
             avs: fake_avs.path,
             args: dgindex_args
         };
@@ -128,7 +128,7 @@ core.on("source", co.wrap(function* (options) {
         return false;
     }
     if (!/[\\/]/.test(dgindex_arr[0])) {
-        dgindex_arr[0] = new options.File(options.temp).parent().childFile(dgindex_arr[0]).path;
+        dgindex_arr[0] = new options.File(options.path.temp).parent().childFile(dgindex_arr[0]).path;
     }
     output_video = dgindex_arr[0];
 
@@ -137,7 +137,7 @@ core.on("source", co.wrap(function* (options) {
         return false;
     }
     if (!/[\\/]/.test(dgindex_arr[1])) {
-        dgindex_arr[1] = new File(options.temp).parent().childFile(dgindex_arr[1]).path;
+        dgindex_arr[1] = new File(options.path.temp).parent().childFile(dgindex_arr[1]).path;
     }
     output_audio.push(dgindex_arr[1]);
     output_delay.push(parseFloat(dgindex_arr[2]));

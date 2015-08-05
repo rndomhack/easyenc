@@ -20,7 +20,7 @@ core.on("source", co.wrap(function* (options) {
     if ("info" in options.global) {
         var video_streamorder = options.global.info.video[0].streamorder.split("-");
         video = {
-            path: options.input,
+            path: options.path.input,
             format: video_format,
             index: parseInt(video_streamorder[video_streamorder.length - 1])
         };
@@ -28,7 +28,7 @@ core.on("source", co.wrap(function* (options) {
         options.global.info.audio.forEach(value => {
             var audio_streamorder = value.streamorder.split("-");
             input.audio.push({
-                path: options.input,
+                path: options.path.input,
                 format: audio_format,
                 index: parseInt(audio_streamorder[audio_streamorder.length - 1]),
                 sync: true
@@ -36,11 +36,11 @@ core.on("source", co.wrap(function* (options) {
         });
     } else {
         video = {
-            path: options.input,
+            path: options.path.input,
             format: video_format
         };
         audio = [{
-            path: options.input,
+            path: options.path.input,
             format: audio_format,
             sync: true
         }];

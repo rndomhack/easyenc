@@ -12,7 +12,7 @@ core.on("initialize", co.wrap(function* (options) {
 }));
 
 core.on("frameserver", co.wrap(function* (options) {
-    var scripts = new Folder(options.user, "avisynth_scripts");
+    var scripts = new Folder(options.path.user, "avisynth_scripts");
     var orig_avs = scripts.childFile(options.params.avs + ".avs");
     var avs = new File(options.path.temp + ".orig.avs");
 
@@ -43,7 +43,7 @@ core.on("frameserver", co.wrap(function* (options) {
     }
 
     // avsの置き換え
-    script = script.replace(/__user__/g, options.user);
+    script = script.replace(/__user__/g, options.path.user);
     script = script.replace(/#__import__/g, imports);
 
     // avsの書き込み

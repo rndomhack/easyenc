@@ -16,12 +16,12 @@ core.on("source", co.wrap(function* (options) {
 
     // global.inputの設定
     var video = {
-        path: options.input,
+        path: options.path.input,
         id: info.video[0].id
     };
     var audio = info.audio.map(value => {
         return {
-            path: options.input,
+            path: options.path.input,
             id: value.id,
             delay: "source_delay" in value ? (value.source_delay - video_delay) / 1000 : -(video_delay / 1000)
         };

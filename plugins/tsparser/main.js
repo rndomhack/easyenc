@@ -13,18 +13,18 @@ core.on("initialize", co.wrap(function* (options) {
 core.on("source", co.wrap(function* (options) {
     var vformat = options.params.use_vfp ? "MPEG2VIDEO_" : "LWLibavVideoSource_",
         aformat = "LWLibavAudioSource_";
-    var tsparser_txt = new File(options.temp + ".tsparser.txt");
+    var tsparser_txt = new File(options.path.temp + ".tsparser.txt");
     var demux_video = options.params.demux_video || options.params.use_vfp;
 
     //tsparserの実行
     var proc = new Process('"${tsparser}" --output "${output}" --mode ${mode} --delay-type ${delaytype} --debug 2 --log "${log}" "${input}"');
     var exec = yield proc.exec({
         tsparser: options.params.tsparser_path,
-        output: options.temp + ".tsparser",
+        output: options.path.temp + ".tsparser",
         mode: "d" + (demux_video ? "v" : "") + "a",
         delaytype: options.params.use_vfp ? "1" : "3",
         log: tsparser_txt.path,
-        input: options.input
+        input: options.path.input
     });
     if (proc.error) {
         options.error("ts_parserの実行に失敗しました");
@@ -63,10 +63,10 @@ core.on("source", co.wrap(function* (options) {
     }
 
     //ファイルチェック
-    var regexp_base = (new File(options.temp).base + ".tsparser").replace(/\W/g, str => {
+    var regexp_base = (new File(options.path.temp).base + ".tsparser").replace(/\W/g, str => {
         return "\\" + str;
     });
-    var temp_parent = new File(options.temp).parent();
+    var temp_parent = new File(options.path.temp).parent();
     var files, video_files = [], audio_files = [];
 
     if (demux_video) {
@@ -84,7 +84,7 @@ core.on("source", co.wrap(function* (options) {
     } else {
         for (let i = 0; i < video_id.length; i++) {
             let obj = {
-                path: options.input,
+                path: options.path.input,
                 id: video_id[i]
             };
             if ("info" in options.global) {
