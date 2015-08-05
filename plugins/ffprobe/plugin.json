@@ -1,0 +1,19 @@
+{
+    "name": "ffprobe",
+    "description": "ffprobeを使用してストリームを選別します",
+    "dependencies": ["mediainfo"],
+    "type": "preprocess",
+    "main": "main.js",
+    "params": {
+        "ffprobe_path": {
+            "desc": "ffprobeへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\ffmpeg\\bin\\ffprobe.exe"
+        },
+        "audio_threshold": {
+            "desc": "音声の選別の閾値",
+            "type": "number",
+            "value": 0.75
+        }
+    }
+}

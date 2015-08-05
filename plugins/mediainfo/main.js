@@ -59,8 +59,10 @@ core.on("preprocess", co.wrap(function* (options) {
             }
         } else {
             if (current === null) return;
+
             match[1] = match[1].split(/\W/g).join("_").toLowerCase();
             if (match[1] in current) return;
+
             if (match[2].match(/^-*\d+$/)) {
                 match[2] = parseInt(match[2]);
             } else if (match[2].match(/^-*[\d.]+$/)) {
@@ -80,6 +82,7 @@ core.on("preprocess", co.wrap(function* (options) {
         return false;
     }
 
+    // global.infoの設定
     options.global.info = info;
 
     return true;
