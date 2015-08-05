@@ -1,0 +1,14 @@
+{
+    "name": "mediainfo",
+    "description": "MediaInfoを使用して動画の情報を取得します",
+    "dependencies": [],
+    "type": "preprocess",
+    "main": "main.js",
+    "params": {
+        "mediainfo_path": {
+            "desc": "MediaInfoへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\MediaInfo\\MediaInfo.exe"
+        }
+    }
+}
