@@ -341,6 +341,26 @@ describe("fsw", () => {
             });
         });
 
+        it("should get children with regexp", done => {
+            var regexp = new RegExp(cf2Name);
+            fs.mkdirSync(cfPath);
+            fs.writeFileSync(cf2Path, "", "utf8");
+            var folder = new fsw.Folder(fPath);
+            folder.children(regexp).then(children => {
+                assert(children.length === 1, "length");
+                assert(children[0] instanceof fsw.File, "first child is file");
+                assert(children[0].path, cf2Path, "first child path");
+                fs.rmdirSync(cfPath);
+                fs.unlinkSync(cf2Path);
+                done();
+            }).catch(() => {
+                assert(false);
+                fs.rmdirSync(cfPath);
+                fs.unlinkSync(cf2Path);
+                done();
+            });
+        });
+
         it("should get childFiles", done => {
             fs.mkdirSync(cfPath);
             fs.writeFileSync(cf2Path, "", "utf8");
