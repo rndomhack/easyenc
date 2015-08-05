@@ -5,7 +5,7 @@ core.on("initialize", co.wrap(function* (options) {
 }));
 
 core.on("source", co.wrap(function* (options) {
-    //formatの定義
+    // formatの定義
     var video_format =
         options.params.ownformat_video ?
             options.params.ownformat_video :
@@ -15,7 +15,7 @@ core.on("source", co.wrap(function* (options) {
             options.params.ownformat_audio :
             'LWLibavAudioSource_("${path}"${args})';
 
-    //formatの設定
+    // formatの設定
     var video, audio;
     if ("info" in options.global) {
         var video_streamorder = options.global.info.video[0].streamorder.split("-");
@@ -50,7 +50,7 @@ core.on("source", co.wrap(function* (options) {
         audio: audio
     };
 
-    //scriptの形式に変換
+    // scriptの形式に変換
     var script_video, script_audio, script_delay;
 
     script_video = input.video.format.replace("${path}", input.video.path);
@@ -77,7 +77,7 @@ core.on("source", co.wrap(function* (options) {
         }
     });
 
-    //global.avisynthに設定
+    // global.avisynthに設定
     options.global.avisynth.__video__ = script_video;
     options.global.avisynth.__audio__ = script_audio;
     options.global.avisynth.__delay__ = script_delay;

@@ -16,7 +16,7 @@ core.on("frameserver", co.wrap(function* (options) {
     var orig_avs = scripts.childFile(options.settings.avs + ".avs");
     var avs = new File(options.path.temp + ".orig.avs");
 
-    //avsiの取得
+    // avsiの取得
     var imports = "";
     var files;
     try {
@@ -27,13 +27,13 @@ core.on("frameserver", co.wrap(function* (options) {
     }
 
     if (files.length !== 0) {
-        files = files.map(function (value) {
+        files = files.map(value => {
             return '"' + value.path + '"';
         });
         imports = "Import(" + files.join(", ") + ")";
     }
 
-    //avsの読み込み
+    // avsの読み込み
     var script;
     try {
         script = yield orig_avs.read("sjis");
@@ -42,11 +42,11 @@ core.on("frameserver", co.wrap(function* (options) {
         return false;
     }
 
-    //avsの置き換え
+    // avsの置き換え
     script = script.replace(/__user__/g, options.user);
     script = script.replace(/#__import__/g, imports);
 
-    //avsの書き込み
+    // avsの書き込み
     try {
         yield avs.write(script, "sjis");
     } catch(err) {
@@ -54,7 +54,7 @@ core.on("frameserver", co.wrap(function* (options) {
         return false;
     }
 
-    //global.avswriterの定義
+    // global.avswriterの定義
     options.global.avswriter = {};
 
     return true;
