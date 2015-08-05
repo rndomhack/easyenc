@@ -11,16 +11,18 @@ core.on("initialize", co.wrap(function* (options) {
 }));
 
 core.on("source", co.wrap(function* (options) {
-    var vformat = "LWLibavVideoSource_", aformat = "LWLibavAudioSource_";
+    var vformat = options.settings.use_vfp ? "MPEG2VIDEO_" : "LWLibavVideoSource_",
+        aformat = "LWLibavAudioSource_";
     var tsparser_txt = new File(options.temp + ".tsparser.txt");
+    var demux_video = options.settings.demux_video || options.settings.use_vfp;
 
     //tsparserの実行
     var proc = new Process('"${tsparser}" --output "${output}" --mode ${mode} --delay-type ${delaytype} --debug 2 --log "${log}" "${input}"');
     var exec = yield proc.exec({
         tsparser: options.settings.tsparser_path,
         output: options.temp + ".tsparser",
-        mode: "d" + (options.settings.demux_video ? "v" : "") + "a",
-        delaytype: options.settings.delay_type,
+        mode: "d" + (demux_video ? "v" : "") + "a",
+        delaytype: options.settings.use_vfp ? "1" : "3",
         log: tsparser_txt.path,
         input: options.input
     });
@@ -67,7 +69,7 @@ core.on("source", co.wrap(function* (options) {
     var temp_parent = new File(options.temp).parent();
     var files, video_files = [], audio_files = [];
 
-    if (options.settings.demux_video) {
+    if (demux_video) {
         for (let i = 0; i < video_id.length; i++) {
             files = temp_parent.childFiles(new RegExp(regexp_base + " PID " + video_id[i].toString(16)));
             if (files.length !== 1) {
