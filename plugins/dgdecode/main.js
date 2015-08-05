@@ -1,10 +1,10 @@
 "use strict";
 
 core.on("initialize", co.wrap(function* (options) {
-    var dgindex = new File(options.settings[options.settings.dgindex_type + "_path"]);
+    var dgindex = new File(options.params[options.params.dgindex_type + "_path"]);
 
     if (!(yield dgindex.exists())) {
-        options.error(options.settings.dgindex_type + "が存在しません");
+        options.error(options.params.dgindex_type + "が存在しません");
         return false;
     }
 
@@ -44,9 +44,9 @@ core.on("source", co.wrap(function* (options) {
 
     // dgindex_argsの設定
     var dgindex_args = "";
-    if (options.settings.dgindex_type === "dgindex") {
+    if (options.params.dgindex_type === "dgindex") {
         vformat = "MPEG2Source_";
-        dgindex_args += options.settings.dgindex_args;
+        dgindex_args += options.params.dgindex_args;
         dgindex_args += " -exit";
         if (video_pid !== -1) {
             dgindex_args += " -vp " + video_pid.toString(16);
@@ -54,18 +54,18 @@ core.on("source", co.wrap(function* (options) {
         }
         dgindex_args += " -om 1";
     }
-    if (options.settings.dgindex_type === "dgindexnv") {
+    if (options.params.dgindex_type === "dgindexnv") {
         vformat = "DGSource_";
-        dgindex_args += options.settings.dgindexnv_args;
+        dgindex_args += options.params.dgindexnv_args;
         dgindex_args += " -e";
         if (video_pid !== -1) {
             dgindex_args += " -v " + video_pid.toString(16);
         }
         dgindex_args += " -a";
     }
-    if (options.settings.dgindex_type === "dgindexim") {
+    if (options.params.dgindex_type === "dgindexim") {
         vformat = "DGSourceIM_";
-        dgindex_args += options.settings.dgindexim_args;
+        dgindex_args += options.params.dgindexim_args;
         dgindex_args += " -e";
         if (video_pid !== -1) {
             dgindex_args += " -v " + video_pid.toString(16);
@@ -75,30 +75,30 @@ core.on("source", co.wrap(function* (options) {
 
     // dgindexの実行
     var proc_command, proc_args;
-    if (options.settings.dgindex_type === "dgindex") {
+    if (options.params.dgindex_type === "dgindex") {
         proc_command = '"${dgindex}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
         proc_args = {
-            dgindex: options.settings.dgindex_path,
+            dgindex: options.params.dgindex_path,
             input: options.input,
             output: options.temp + ".dgindex",
             avs: fake_avs.path,
             args: dgindex_args
         };
     }
-    if (options.settings.dgindex_type === "dgindexnv") {
+    if (options.params.dgindex_type === "dgindexnv") {
         proc_command = '"${dgindexnv}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
         proc_args = {
-            dgindexnv: options.settings.dgindexnv_path,
+            dgindexnv: options.params.dgindexnv_path,
             input: options.input,
             output: options.temp + ".dgindex.dgi",
             avs: fake_avs.path,
             args: dgindex_args
         };
     }
-    if (options.settings.dgindex_type === "dgindexim") {
+    if (options.params.dgindex_type === "dgindexim") {
         proc_command = '"${dgindexim}" -i "${input}" -o "${output}" -at "${avs}" ${args}';
         proc_args = {
-            dgindexim: options.settings.dgindexim_path,
+            dgindexim: options.params.dgindexim_path,
             input: options.input,
             output: options.temp + ".dgindex.dgi",
             avs: fake_avs.path,
@@ -109,7 +109,7 @@ core.on("source", co.wrap(function* (options) {
     var proc = new Process(proc_command);
     var exec = yield proc.exec(proc_args);
     if (exec.error) {
-        options.error(options.settings.dgindex_type + "の実行に失敗しました");
+        options.error(options.params.dgindex_type + "の実行に失敗しました");
         return false;
     }
 
@@ -124,7 +124,7 @@ core.on("source", co.wrap(function* (options) {
 
     var dgindex_arr = dgindex_script.split(/\r\n|\r|\n/);
     if (dgindex_arr[0] === "__vid__") {
-        options.error((options.settings.dgindex_type === "dgindex" ? "d2v" : "dgi") + "へのパスの取得に失敗しました");
+        options.error((options.params.dgindex_type === "dgindex" ? "d2v" : "dgi") + "へのパスの取得に失敗しました");
         return false;
     }
     if (!/[\\/]/.test(dgindex_arr[0])) {

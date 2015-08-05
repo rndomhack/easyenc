@@ -1,7 +1,7 @@
 "use strict";
 
 core.on("initialize", co.wrap(function* (options) {
-    var tsparser = new File(options.settings.tsparser_path);
+    var tsparser = new File(options.params.tsparser_path);
 
     if (!(yield tsparser.exists())) {
         options.error("ts_parserが存在しません");
@@ -11,18 +11,18 @@ core.on("initialize", co.wrap(function* (options) {
 }));
 
 core.on("source", co.wrap(function* (options) {
-    var vformat = options.settings.use_vfp ? "MPEG2VIDEO_" : "LWLibavVideoSource_",
+    var vformat = options.params.use_vfp ? "MPEG2VIDEO_" : "LWLibavVideoSource_",
         aformat = "LWLibavAudioSource_";
     var tsparser_txt = new File(options.temp + ".tsparser.txt");
-    var demux_video = options.settings.demux_video || options.settings.use_vfp;
+    var demux_video = options.params.demux_video || options.params.use_vfp;
 
     //tsparserの実行
     var proc = new Process('"${tsparser}" --output "${output}" --mode ${mode} --delay-type ${delaytype} --debug 2 --log "${log}" "${input}"');
     var exec = yield proc.exec({
-        tsparser: options.settings.tsparser_path,
+        tsparser: options.params.tsparser_path,
         output: options.temp + ".tsparser",
         mode: "d" + (demux_video ? "v" : "") + "a",
-        delaytype: options.settings.use_vfp ? "1" : "3",
+        delaytype: options.params.use_vfp ? "1" : "3",
         log: tsparser_txt.path,
         input: options.input
     });

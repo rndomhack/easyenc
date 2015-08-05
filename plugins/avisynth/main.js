@@ -1,7 +1,7 @@
 "use strict";
 
 core.on("initialize", co.wrap(function* (options) {
-    var avs = new File(options.path.user, "avisynth_scripts", options.settings.avs);
+    var avs = new File(options.path.user, "avisynth_scripts", options.params.avs);
 
     if (!(yield avs.exists())) {
         options.error("avsが存在しません");
@@ -13,7 +13,7 @@ core.on("initialize", co.wrap(function* (options) {
 
 core.on("frameserver", co.wrap(function* (options) {
     var scripts = new Folder(options.user, "avisynth_scripts");
-    var orig_avs = scripts.childFile(options.settings.avs + ".avs");
+    var orig_avs = scripts.childFile(options.params.avs + ".avs");
     var avs = new File(options.path.temp + ".orig.avs");
 
     // avsiの取得

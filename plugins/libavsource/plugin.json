@@ -4,7 +4,7 @@
     "dependencies": [],
     "type": "source",
     "main": "main.js",
-    "settings": {
+    "params": {
         "ownformat_video": {
             "desc": "映像で使用する関数(パスは${path}で指定)",
             "type": "string",

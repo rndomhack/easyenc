@@ -4,7 +4,7 @@
     "dependencies": ["avisynth"],
     "type": "source",
     "main": "main.js",
-    "settings": {
+    "params": {
         "dgindex_type": {
             "desc": "使用するDGIndex",
             "type": "option",

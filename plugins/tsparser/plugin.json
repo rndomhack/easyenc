@@ -4,7 +4,7 @@
     "dependencies": [],
     "type": "source",
     "main": "main.js",
-    "settings": {
+    "params": {
         "tsparser_path": {
             "desc": "ts_parserへのパス",
             "type": "file",
