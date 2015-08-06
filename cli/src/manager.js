@@ -45,12 +45,15 @@ class Core {
     emit(event, options) {
         return co((function* () {
             if (!this._events.has(event)) {
-                return;
+                return true;
             }
 
             for (let func of this._events.get(event).values()) {
-                yield func(options);
+                let result = yield func(options);
+                if (!result) return false;
             }
+
+            return true;
         }).bind(this));
     }
 }
