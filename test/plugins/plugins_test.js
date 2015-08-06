@@ -18,14 +18,18 @@ class PluginTest {
         this._errors = [];
     }
 
+    resetErrors() {
+        this._errors = [];
+    }
+
     initTest() {
-        it("should initialize", (() => {
-            return this._plugin.init()
+        it("should initialize", (() =>
+            this._plugin.init()
                 .then(() => assert(true))
                 .catch((() => {
                     throw new Error(this._errors.join(" "));
-                }).bind(this));
-        }).bind(this));
+                }).bind(this))
+        ).bind(this));
     }
 
     emitTest(event, options) {
@@ -39,17 +43,13 @@ class PluginTest {
         options.path.user = path.join(__dirname, this._name);
         options.path.temp = path.join(tmp, "test");
 
-        it("shoulde exec " + event, (() =>
+        it("should exec " + event, (() =>
             this._plugin.core.emit(event, options)
                 .then(result => assert(result))
                 .catch((() => {
                     throw new Error(this._errors.join(" "));
                 }).bind(this))
         ).bind(this));
-    }
-
-    resetErrors() {
-        this._errors = [];
     }
 
 }
