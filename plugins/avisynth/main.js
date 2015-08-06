@@ -13,7 +13,7 @@ core.on("initialize", co.wrap(function* (options) {
 
 core.on("frameserver", co.wrap(function* (options) {
     var scripts = new Folder(options.path.user, "avisynth_scripts");
-    var orig_avs = scripts.childFile(options.params.avs + ".avs");
+    var orig_avs = scripts.childFile(options.params.avs);
     var avs = new File(options.path.temp + ".orig.avs");
 
     // avsiの取得
