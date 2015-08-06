@@ -8,28 +8,37 @@ var fs = require("fs"),
 var mocha = new Mocha();
 var argv = process.argv.slice(2);
 
-var test = (dir, filter) => {
+var mochaTest = () => {
+    mocha.run((failures) => {
+        process.on('exit', () => {
+            /* eslint-disable no-process-exit */
+            process.exit(failures);
+            /* eslint-enable*/
+        });
+    });
+};
+
+var test = file => {
+    mocha.addFile(file);
+    mochaTest();
+};
+
+var testDir = (dir, filter) => {
     recursive(dir, (err, files) => {
         if (err) throw err;
 
         files.filter(file => typeof filter === "string" ?
             file.substr(-filter.length) === filter : true)
             .forEach(file => {
-                mocha.addFile(path.join(file));
+                mocha.addFile(file);
             });
 
-        mocha.run((failures) => {
-            process.on('exit', () => {
-                /* eslint-disable no-process-exit */
-                process.exit(failures);
-                /* eslint-enable*/
-            });
-        });
+        mochaTest();
     });
 };
 
 if (argv.includes("--plugins")) {
-    test("test/plugins", "_test.js");
+    test(path.join(__dirname, "plugins", "plugins_test.js"));
 } else {
-    test("test/spec", "_test.js");
+    testDir(path.join(__dirname, "spec"), "_test.js");
 }
