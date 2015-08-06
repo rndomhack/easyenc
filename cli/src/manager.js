@@ -42,6 +42,10 @@ class Core {
         return this;
     }
 
+    has(event) {
+        return this._events.has(event) && this._events.get(event).size > 0;
+    }
+
     emit(event, options) {
         return co((function* () {
             if (!this._events.has(event)) {

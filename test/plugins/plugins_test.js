@@ -43,13 +43,16 @@ class PluginTest {
         options.path.user = path.join(__dirname, this._name);
         options.path.temp = path.join(tmp, "test");
 
-        it("should exec " + event, (() =>
-            this._plugin.core.emit(event, options)
+        it("should exec " + event, (() => {
+            if (!this._plugin.core.has(event))
+                throw new Error(event + " event is not registered.");
+
+            return this._plugin.core.emit(event, options)
                 .then(result => assert(result))
                 .catch((() => {
                     throw new Error(this._errors.join(" "));
-                }).bind(this))
-        ).bind(this));
+                }).bind(this));
+        }).bind(this));
     }
 
 }
