@@ -54,8 +54,37 @@ core.on("frameserver", co.wrap(function* (options) {
         return false;
     }
 
-    // global.avswriterの定義
-    options.global.avswriter = {};
+    // global.avisynthの定義
+    options.global.avisynth = {};
+
+    return true;
+}));
+
+core.on("editor", co.wrap(function* (options) {
+    var orig_avs = new File(options.path.temp + ".orig.avs");
+    var avs = new File(options.path.temp + ".avs");
+
+    //avsの読み込み
+    var script;
+    try {
+        script = yield orig_avs.read("sjis");
+    } catch(err) {
+        options.error("orig_avsの読み込みに失敗しました");
+        return false;
+    }
+
+    //avsの置き換え
+    for (let key in options.global.avisynth) {
+        script = script.replace(key, options.global.avisynth[key]);
+    }
+
+    //avsの書き込み
+    try {
+        yield avs.write(script, "sjis");
+    } catch(err) {
+        options.error("avsの書き込みに失敗しました");
+        return false;
+    }
 
     return true;
 }));
