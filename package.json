@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "Easyenc is encode tool to convert any formats.",
   "scripts": {
-    "test": "node --es_staging --harmony_arrow_functions --harmony_array_includes --harmony_rest_parameters test/test"
+    "test": "node --es_staging --harmony_arrow_functions --harmony_array_includes --harmony_rest_parameters --harmony-spreadcalls test/test",
+    "test_plugins": "npm test -- --plugins"
   },
   "repository": {
     "type": "git",
