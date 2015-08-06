@@ -1,0 +1,60 @@
+{
+    "name": "joinlogoscp",
+    "description": "join_logo_scpを使用してtrim",
+    "dependencies": [],
+    "addons": ["logo"],
+    "type": "others",
+    "main": "main.js",
+    "params": {
+        "logoframe": {
+            "desc": "logoframeを使用する",
+            "type": "check",
+            "value": true
+        },
+        "logoframe_path": {
+            "desc": "logoframeへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\logoframe\\logoframe.exe"
+        },
+        "logoframe_args": {
+            "desc": "logoframeの引数",
+            "type": "string",
+            "value": ""
+        },
+        "chapterexe": {
+            "desc": "chapter_exeを使用する",
+            "type": "check",
+            "value": true
+        },
+        "chapterexe_path": {
+            "desc": "chapter_exeへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\chapter_exe\\chapter_exe.exe"
+        },
+        "chapterexe_args": {
+            "desc": "chapter_exeの引数",
+            "type": "string",
+            "value": "-m 15 -s 10"
+        },
+        "joinlogoscp_path": {
+            "desc": "join_logo_scpへのパス",
+            "type": "file",
+            "value": "${user}\\bin\\join_logo_scp\\join_logo_scp.exe"
+        },
+        "joinlogoscp_args": {
+            "desc": "join_logo_scpの引数",
+            "type": "string",
+            "value": ""
+        },
+        "joinlogoscp_cmd": {
+            "desc": "join_logo_scpのcmdファイル",
+            "type": "files",
+            "value": "${user}\\bin\\join_logo_scp\\JL_標準.txt"
+        },
+        "avs_path": {
+            "desc": "join_logo_scp用のavsファイル",
+            "type": "folder",
+            "value": "${user}\\avs_scripts\\joinlogoscp.avs_"
+        }
+    }
+}
