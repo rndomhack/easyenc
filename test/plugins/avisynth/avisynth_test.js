@@ -9,7 +9,7 @@ module.exports = pluginTest => {
     };
 
     pluginTest.initTest();
-    pluginTest.emitTest("init", options);
+    pluginTest.emitTest("initialize", options);
     pluginTest.emitTest("frameserver", options);
     pluginTest.emitTest("editor", options);
 };
